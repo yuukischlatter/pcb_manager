@@ -17,11 +17,19 @@
 
     <div class="main-container">
         <div class="diagram-container" id="diagramContainer">
+            <!-- Canvas content wrapper for modules -->
+            <div class="canvas-content" id="canvasContent">
+                <!-- Modules will be placed here by JavaScript -->
+            </div>
+            
             <div class="instructions">
                 <h2>Robot ARM PCB System Viewer</h2>
                 <p>Select your <strong>robot-arm-segment-pcb-system</strong> folder using the button above to visualize your system architecture.</p>
                 <br>
                 <p>📁 Click modules to drill down<br>
+                🖱️ Drag modules to reposition them<br>
+                🖱️ Middle-click and drag to pan the view<br>
+                🖱️ Scroll wheel to zoom in/out<br>
                 🔗 Hover over connections for details<br>
                 📍 Use breadcrumbs to navigate back</p>
             </div>
@@ -35,6 +43,7 @@
         </div>
     </div>
 
+    <script src="canvas-manager.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -58,32 +58,45 @@ body {
     display: flex;
 }
 
+/* CANVAS CONTAINER */
 .diagram-container {
     flex: 1;
     position: relative;
     overflow: hidden;
+    background: 
+        radial-gradient(circle at 20px 20px, #333 1px, transparent 1px),
+        linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
+        linear-gradient(-45deg, #1a1a1a 25%, transparent 25%);
+    background-size: 40px 40px, 40px 40px, 40px 40px;
+    background-position: 0 0, 0 0, 20px 20px;
 }
 
-.sidebar {
-    width: 300px;
-    background: #2d2d2d;
-    border-left: 2px solid #444;
-    padding: 20px;
-    overflow-y: auto;
+/* Canvas Transform Container */
+.canvas-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    pointer-events: none;
 }
 
+.canvas-content * {
+    pointer-events: auto;
+}
+
+/* MODULE BLOCKS WITH DRAGGING */
 .module-block {
     background: linear-gradient(135deg, #4fc3f7, #29b6f6);
     border-radius: 10px;
     padding: 20px;
     margin: 10px;
-    cursor: pointer;
-    transition: all 0.4s ease;
+    cursor: grab;
     position: absolute;
     min-width: 150px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
     z-index: 10;
+    user-select: none;
 }
 
 .module-block:hover {
@@ -109,22 +122,24 @@ body {
     box-shadow: 0 8px 25px rgba(102, 187, 106, 0.5);
 }
 
-.module-block.parent {
-    background: none !important;
-    border: 3px solid #4fc3f7;
-    box-shadow: none;
-    z-index: 1;
-    pointer-events: none;
+/* Dragging States */
+.module-block.dragging {
+    cursor: grabbing !important;
+    transform: translateY(-8px) scale(1.05) !important;
+    box-shadow: 0 20px 40px rgba(79, 195, 247, 0.7) !important;
+    z-index: 1000 !important;
+    border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
-.module-block.parent.pcb {
-    border-color: #ff7043;
+.module-block.dragging.pcb {
+    box-shadow: 0 20px 40px rgba(255, 112, 67, 0.7) !important;
 }
 
-.module-block.parent.component {
-    border-color: #66bb6a;
+.module-block.dragging.component {
+    box-shadow: 0 20px 40px rgba(102, 187, 106, 0.7) !important;
 }
 
+/* Expanded Module States */
 .module-block.expanded {
     background: rgba(79, 195, 247, 0.1) !important;
     border: 2px solid #4fc3f7 !important;
@@ -144,6 +159,12 @@ body {
     box-shadow: 0 4px 20px rgba(102, 187, 106, 0.3) !important;
 }
 
+.module-block.expanded.resizing {
+    box-shadow: 0 0 25px rgba(79, 195, 247, 0.8) !important;
+    border-width: 3px !important;
+}
+
+/* Selected Module State */
 .module-block.selected {
     border: 3px solid #fff;
     transform: translateY(-3px);
@@ -164,13 +185,14 @@ body {
     opacity: 0.8;
 }
 
+/* CONNECTION LINES */
 .connection-line {
     position: absolute;
     background: #4fc3f7;
     height: 2px;
     transform-origin: left center;
     z-index: 1;
-    transition: all 0.3s ease;
+    pointer-events: none;
 }
 
 .connection-line:hover {
@@ -187,6 +209,14 @@ body {
     border-left: 10px solid #4fc3f7;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
+}
+
+.sidebar {
+    width: 300px;
+    background: #2d2d2d;
+    border-left: 2px solid #444;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .details-panel h3 {
