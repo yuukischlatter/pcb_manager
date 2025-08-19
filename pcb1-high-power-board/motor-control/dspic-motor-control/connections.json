@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../encoder-limit-switch",
+      "type": "digital_io",
+      "interface": "GPIO",
+      "signals": ["Encoder_A", "Encoder_B", "Limit_Switch"],
+      "description": "Encoder and limit switch signals"
+    },
+    {
+      "target": "../../power-management/voltage-conversion",
+      "type": "5V_power",
+      "interface": "Power Rail",
+      "signals": ["5V", "GND"],
+      "description": "5V power supply for MCU"
+    }
+  ]
+}

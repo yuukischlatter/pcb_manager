@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../communication-hub",
+      "type": "i2c_communication",
+      "interface": "I2C Bus",
+      "signals": ["SDA", "SCL"],
+      "description": "I2C communication with communication hub"
+    },
+    {
+      "target": "../../pcb1-high-power-board/motor-control",
+      "type": "analog_signal",
+      "interface": "Analog Interface",
+      "signals": ["Position", "Velocity", "Current"],
+      "description": "Analog sensor feedback to motor control"
+    }
+  ]
+}

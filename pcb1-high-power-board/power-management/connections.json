@@ -1,0 +1,11 @@
+﻿{
+  "connections": [
+    {
+      "target": "../pcb2-low-power-board",
+      "type": "5V_power",
+      "interface": "Power Connector",
+      "signals": ["5V", "GND"],
+      "description": "5V power supply to low power board"
+    }
+  ]
+}

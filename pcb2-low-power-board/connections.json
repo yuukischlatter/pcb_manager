@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "pcb1-high-power-board",
+      "type": "communication",
+      "interface": "Inter-PCB Bus",
+      "signals": ["Data", "Control"],
+      "description": "Communication with high power board"
+    },
+    {
+      "target": "pcb3-force-torque-assembly",
+      "type": "sensor_interface",
+      "interface": "Sensor Interface",
+      "signals": ["Force Data", "Torque Data"],
+      "description": "Force torque sensor interface"
+    }
+  ]
+}

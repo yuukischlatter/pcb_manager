@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "pcb2-low-power-board",
+      "type": "communication",
+      "interface": "Inter-PCB Bus",
+      "signals": ["Data", "Control"],
+      "description": "Communication with low power board"
+    },
+    {
+      "target": "pcb3-force-torque-assembly",
+      "type": "sensor_interface",
+      "interface": "Sensor Interface",
+      "signals": ["Force Data"],
+      "description": "Force torque sensor data"
+    }
+  ]
+}

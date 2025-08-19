@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../motor-current-distribution",
+      "type": "24V_power",
+      "interface": "Power Rail",
+      "signals": ["24V", "GND"],
+      "description": "24V power supply to motor current distribution"
+    },
+    {
+      "target": "../hp-to-lp-conversion",
+      "type": "5V_power",
+      "interface": "Power Rail",
+      "signals": ["5V", "GND"],
+      "description": "5V power supply to HP-to-LP converter"
+    }
+  ]
+}

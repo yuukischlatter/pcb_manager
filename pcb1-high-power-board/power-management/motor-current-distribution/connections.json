@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../../motor-control",
+      "type": "motor_power",
+      "interface": "Motor Power Rail",
+      "signals": ["Motor+", "Motor-", "GND"],
+      "description": "Motor power distribution to motor control"
+    },
+    {
+      "target": "../voltage-conversion",
+      "type": "24V_power",
+      "interface": "Power Rail",
+      "signals": ["24V", "GND"],
+      "description": "24V power input from voltage conversion"
+    }
+  ]
+}

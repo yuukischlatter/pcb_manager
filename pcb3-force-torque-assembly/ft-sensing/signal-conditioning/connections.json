@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../ft-mcu-controller",
+      "type": "analog_signal",
+      "interface": "Analog Interface",
+      "signals": ["Conditioned_Force", "Conditioned_Torque"],
+      "description": "Conditioned analog signals to MCU"
+    },
+    {
+      "target": "../force-torque-sensors",
+      "type": "analog_signal",
+      "interface": "Analog Interface",
+      "signals": ["Raw_Force", "Raw_Torque"],
+      "description": "Raw analog signals from sensors"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../temperature-sensor",
+      "type": "i2c_communication",
+      "interface": "I2C Bus",
+      "signals": ["SDA", "SCL"],
+      "description": "I2C communication with temperature sensor"
+    },
+    {
+      "target": "../../communication-hub",
+      "type": "spi_communication",
+      "interface": "SPI Bus",
+      "signals": ["MOSI", "MISO", "CLK", "CS"],
+      "description": "SPI communication with communication hub"
+    }
+  ]
+}

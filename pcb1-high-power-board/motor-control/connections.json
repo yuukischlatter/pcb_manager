@@ -1,0 +1,11 @@
+﻿{
+  "connections": [
+    {
+      "target": "../pcb2-low-power-board/communication-hub",
+      "type": "spi_communication",
+      "interface": "SPI Bus",
+      "signals": ["MOSI", "MISO", "CLK", "CS"],
+      "description": "SPI communication with communication hub"
+    }
+  ]
+}

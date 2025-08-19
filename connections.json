@@ -1,0 +1,25 @@
+﻿{
+  "connections": [
+    {
+      "target": "pcb1-high-power-board",
+      "type": "system_bus",
+      "interface": "System Bus",
+      "signals": ["Power", "Control"],
+      "description": "High power motor control board"
+    },
+    {
+      "target": "pcb2-low-power-board",
+      "type": "system_bus",
+      "interface": "System Bus",
+      "signals": ["Communication", "Sensors"],
+      "description": "Low power communication and sensor hub"
+    },
+    {
+      "target": "pcb3-force-torque-assembly",
+      "type": "sensor_bus",
+      "interface": "Sensor Bus",
+      "signals": ["Force Data", "Torque Data"],
+      "description": "Force and torque sensing assembly"
+    }
+  ]
+}

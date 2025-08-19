@@ -1,0 +1,25 @@
+﻿{
+  "connections": [
+    {
+      "target": "../sensor-processing",
+      "type": "i2c_communication",
+      "interface": "I2C Bus",
+      "signals": ["SDA", "SCL"],
+      "description": "I2C communication with sensor processing"
+    },
+    {
+      "target": "../touch-interface",
+      "type": "spi_communication",
+      "interface": "SPI Bus",
+      "signals": ["MOSI", "MISO", "CLK", "CS"],
+      "description": "SPI communication with touch interface"
+    },
+    {
+      "target": "../../pcb1-high-power-board/motor-control",
+      "type": "spi_communication",
+      "interface": "SPI Bus",
+      "signals": ["MOSI", "MISO", "CLK", "CS"],
+      "description": "SPI communication with motor control"
+    }
+  ]
+}

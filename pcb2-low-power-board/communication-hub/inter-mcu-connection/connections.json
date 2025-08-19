@@ -1,0 +1,25 @@
+﻿{
+  "connections": [
+    {
+      "target": "../main-bus",
+      "type": "uart_communication",
+      "interface": "UART",
+      "signals": ["TX", "RX"],
+      "description": "UART communication to main bus"
+    },
+    {
+      "target": "../../sensor-processing",
+      "type": "i2c_communication",
+      "interface": "I2C Bus",
+      "signals": ["SDA", "SCL"],
+      "description": "I2C communication with sensor processing"
+    },
+    {
+      "target": "../../pcb1-high-power-board",
+      "type": "spi_communication",
+      "interface": "SPI Bus",
+      "signals": ["MOSI", "MISO", "CLK", "CS"],
+      "description": "SPI communication with high power board"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "pcb1-high-power-board",
+      "type": "sensor_interface",
+      "interface": "Sensor Interface",
+      "signals": ["Force_X", "Force_Y", "Force_Z", "Torque_X", "Torque_Y", "Torque_Z"],
+      "description": "Force and torque sensor data"
+    },
+    {
+      "target": "pcb2-low-power-board/communication-hub",
+      "type": "can_communication",
+      "interface": "CAN Bus",
+      "signals": ["CAN_H", "CAN_L"],
+      "description": "CAN communication with communication hub"
+    }
+  ]
+}

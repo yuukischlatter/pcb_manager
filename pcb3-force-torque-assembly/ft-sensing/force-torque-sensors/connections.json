@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../ft-mcu-controller",
+      "type": "analog_signal",
+      "interface": "Analog ADC",
+      "signals": ["Force_X", "Force_Y", "Force_Z", "Torque_X", "Torque_Y", "Torque_Z"],
+      "description": "Analog force and torque sensor signals"
+    },
+    {
+      "target": "../signal-conditioning",
+      "type": "analog_signal",
+      "interface": "Analog Interface",
+      "signals": ["Raw_Force", "Raw_Torque"],
+      "description": "Raw analog sensor signals for conditioning"
+    }
+  ]
+}

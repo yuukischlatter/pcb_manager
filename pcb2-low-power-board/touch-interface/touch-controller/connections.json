@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../touch-skin-connectors",
+      "type": "capacitive_touch",
+      "interface": "Touch Sensor Array",
+      "signals": ["Touch_1", "Touch_2", "Touch_3", "Touch_4"],
+      "description": "Capacitive touch sensor array"
+    },
+    {
+      "target": "../../communication-hub",
+      "type": "spi_communication",
+      "interface": "SPI Bus",
+      "signals": ["MOSI", "MISO", "CLK", "CS"],
+      "description": "SPI communication with communication hub"
+    }
+  ]
+}

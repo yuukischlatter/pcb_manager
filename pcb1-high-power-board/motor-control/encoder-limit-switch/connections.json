@@ -1,0 +1,18 @@
+﻿{
+  "connections": [
+    {
+      "target": "../dspic-motor-control",
+      "type": "digital_io",
+      "interface": "GPIO",
+      "signals": ["Encoder_A", "Encoder_B", "Limit_Switch"],
+      "description": "Encoder and limit switch feedback"
+    },
+    {
+      "target": "../../pcb2-low-power-board/sensor-processing",
+      "type": "i2c_communication",
+      "interface": "I2C Bus",
+      "signals": ["SDA", "SCL"],
+      "description": "I2C communication for sensor data"
+    }
+  ]
+}

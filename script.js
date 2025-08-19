@@ -193,75 +193,151 @@ class PCBSystemViewer {
     }
 
     calculateModulePositions(modules) {
-        const container = document.getElementById('diagramContainer');
-        const containerRect = container.getBoundingClientRect();
         const positions = [];
         
-        // Group modules by level for better layout
-        const modulesByLevel = new Map();
-        modules.forEach(module => {
-            if (!modulesByLevel.has(module.level)) {
-                modulesByLevel.set(module.level, []);
-            }
-            modulesByLevel.get(module.level).push(module);
-        });
-
-        // Position modules level by level
-        let currentY = 50;
+        // First, calculate content size for each expanded module recursively
+        const expandedSizes = this.calculateExpandedSizes(modules);
         
-        modulesByLevel.forEach((levelModules, level) => {
-            const cols = Math.ceil(Math.sqrt(levelModules.length));
-            const spacingX = Math.max(200, (containerRect.width - 400) / cols); // Account for sidebar
-            const spacingY = 150;
-
-            levelModules.forEach((module, index) => {
-                const col = index % cols;
-                const row = Math.floor(index / cols);
+        // Find root modules (not children of expanded parents)
+        const rootVisibleModules = modules.filter(module => {
+            return module.level === 0 || !this.isChildOfExpandedParent(module);
+        });
+        
+        // Position root modules in a grid
+        const cols = Math.ceil(Math.sqrt(rootVisibleModules.length));
+        const spacingX = 50; // Space between root modules
+        const spacingY = 50;
+        
+        let rootIndex = 0;
+        let currentX = 50;
+        let currentY = 50;
+        let maxHeightInRow = 0;
+        
+        modules.forEach(module => {
+            if (this.isChildOfExpandedParent(module)) {
+                // This is a child of an expanded parent - position relative to parent
+                const parent = this.allModules.get(module.parentPath);
+                const parentIndex = modules.indexOf(parent);
+                if (parentIndex >= 0 && positions[parentIndex]) {
+                    const parentPos = positions[parentIndex];
+                    const childPos = this.calculateChildPosition(module, parent, parentPos, expandedSizes);
+                    positions.push(childPos);
+                } else {
+                    // Fallback position
+                    positions.push({ x: 50, y: 50, width: 140, height: 80, isChild: true });
+                }
+            } else {
+                // This is a root-level visible module
+                const col = rootIndex % cols;
                 
-                const x = 50 + col * spacingX;
-                const y = currentY + row * spacingY;
-                
-                // If this module is a child of an expanded parent, position it relative to parent
-                if (module.level > 0) {
-                    const parent = this.allModules.get(module.parentPath);
-                    if (parent && this.expandedModules.has(parent.path)) {
-                        // Find parent position and offset from it
-                        const parentIndex = modules.indexOf(parent);
-                        if (parentIndex >= 0) {
-                            const parentPos = positions[parentIndex];
-                            if (parentPos) {
-                                // Position children in a grid starting to the right of parent
-                                const childrenOfParent = parent.children.filter(child => modules.includes(child));
-                                const childIndex = childrenOfParent.indexOf(module);
-                                const childCols = Math.ceil(Math.sqrt(childrenOfParent.length));
-                                const childCol = childIndex % childCols;
-                                const childRow = Math.floor(childIndex / childCols);
-                                
-                                positions.push({
-                                    x: parentPos.x + 200 + childCol * 180,
-                                    y: parentPos.y + childRow * 120,
-                                    isChild: true,
-                                    parent: parent
-                                });
-                                return;
-                            }
-                        }
-                    }
+                // Start new row if needed
+                if (col === 0 && rootIndex > 0) {
+                    currentY += maxHeightInRow + spacingY;
+                    currentX = 50;
+                    maxHeightInRow = 0;
                 }
                 
+                const moduleSize = expandedSizes.get(module.path) || { width: 250, height: 120 };
+                
                 positions.push({
-                    x: x,
-                    y: y,
+                    x: currentX,
+                    y: currentY,
+                    width: moduleSize.width,
+                    height: moduleSize.height,
+                    isExpanded: this.expandedModules.has(module.path),
                     isChild: false
                 });
-            });
-            
-            // Update currentY for next level
-            const rowsUsed = Math.ceil(levelModules.filter(m => !this.isChildOfExpandedParent(m)).length / cols);
-            currentY += (rowsUsed * spacingY) + 100;
+                
+                // Update for next module
+                currentX += moduleSize.width + spacingX;
+                maxHeightInRow = Math.max(maxHeightInRow, moduleSize.height);
+                rootIndex++;
+            }
         });
-
+        
         return positions;
+    }
+
+    calculateExpandedSizes(modules) {
+        const sizes = new Map();
+        
+        // Calculate size for each module
+        modules.forEach(module => {
+            const size = this.calculateModuleSize(module, modules);
+            sizes.set(module.path, size);
+        });
+        
+        return sizes;
+    }
+
+    calculateModuleSize(module, allVisibleModules) {
+        const isExpanded = this.expandedModules.has(module.path);
+        const hasVisibleChildren = module.children.some(child => allVisibleModules.includes(child));
+        
+        if (!isExpanded || !hasVisibleChildren) {
+            // Normal module size
+            return { width: 250, height: 120 };
+        }
+        
+        // This module is expanded and has visible children
+        const visibleChildren = module.children.filter(child => allVisibleModules.includes(child));
+        
+        // Calculate grid for children
+        const childCols = Math.ceil(Math.sqrt(visibleChildren.length));
+        const childRows = Math.ceil(visibleChildren.length / childCols);
+        
+        // Get the size of the largest child (recursively)
+        let maxChildWidth = 140;
+        let maxChildHeight = 80;
+        
+        visibleChildren.forEach(child => {
+            const childSize = this.calculateModuleSize(child, allVisibleModules);
+            maxChildWidth = Math.max(maxChildWidth, childSize.width);
+            maxChildHeight = Math.max(maxChildHeight, childSize.height);
+        });
+        
+        // Calculate required size to fit all children
+        const padding = 40;
+        const titleHeight = 60;
+        const childSpacing = 20;
+        
+        const contentWidth = (maxChildWidth * childCols) + (childSpacing * (childCols - 1));
+        const contentHeight = (maxChildHeight * childRows) + (childSpacing * (childRows - 1));
+        
+        const totalWidth = Math.max(300, contentWidth + (padding * 2));
+        const totalHeight = Math.max(200, contentHeight + titleHeight + (padding * 2));
+        
+        return { width: totalWidth, height: totalHeight };
+    }
+
+    calculateChildPosition(childModule, parentModule, parentPosition, expandedSizes) {
+        // Get all children of this parent that are visible
+        const visibleModules = this.getVisibleModules();
+        const siblingChildren = parentModule.children.filter(child => 
+            visibleModules.includes(child)
+        );
+        
+        const childIndex = siblingChildren.indexOf(childModule);
+        
+        // Arrange children in a grid inside the parent
+        const childCols = Math.ceil(Math.sqrt(siblingChildren.length));
+        const col = childIndex % childCols;
+        const row = Math.floor(childIndex / childCols);
+        
+        const padding = 40;
+        const titleHeight = 60;
+        const childSpacing = 20;
+        
+        const childSize = expandedSizes.get(childModule.path) || { width: 140, height: 80 };
+        
+        return {
+            x: parentPosition.x + padding + col * (childSize.width + childSpacing),
+            y: parentPosition.y + titleHeight + padding + row * (childSize.height + childSpacing),
+            width: childSize.width,
+            height: childSize.height,
+            isChild: true,
+            parent: parentModule
+        };
     }
 
     isChildOfExpandedParent(module) {
@@ -284,8 +360,25 @@ class PCBSystemViewer {
             moduleEl.classList.add('expanded');
         }
         
+        // Set position and size
         moduleEl.style.left = position.x + 'px';
         moduleEl.style.top = position.y + 'px';
+        
+        if (position.width) {
+            moduleEl.style.width = position.width + 'px';
+            moduleEl.style.minWidth = position.width + 'px';
+        }
+        if (position.height) {
+            moduleEl.style.height = position.height + 'px';
+            moduleEl.style.minHeight = position.height + 'px';
+        }
+        
+        // Special styling for expanded modules
+        if (isExpanded && hasChildren) {
+            moduleEl.style.backgroundColor = 'rgba(79, 195, 247, 0.1)'; // Very transparent
+            moduleEl.style.border = '2px solid #4fc3f7';
+            moduleEl.style.borderRadius = '15px';
+        }
         
         // Add expansion indicator if module has children
         const expansionIndicator = hasChildren ? (isExpanded ? '▼' : '▶') : '';
@@ -294,9 +387,17 @@ class PCBSystemViewer {
         const connectionCount = this.getConnectionCount(module);
         const connectionIndicator = connectionCount > 0 ? ` (${connectionCount})` : '';
         
+        // Position title based on whether it's expanded
+        const titleStyle = isExpanded && hasChildren ? 
+            'position: absolute; top: 10px; left: 15px; font-weight: bold; z-index: 10;' : 
+            '';
+        const typeStyle = isExpanded && hasChildren ? 
+            'position: absolute; top: 35px; left: 15px; font-size: 11px; opacity: 0.8; z-index: 10;' : 
+            '';
+        
         moduleEl.innerHTML = `
-            <div class="module-title">${expansionIndicator} ${module.name}${connectionIndicator}</div>
-            <div class="module-type">${module.type.toUpperCase()}</div>
+            <div class="module-title" style="${titleStyle}">${expansionIndicator} ${module.name}${connectionIndicator}</div>
+            <div class="module-type" style="${typeStyle}">${module.type.toUpperCase()}</div>
         `;
 
         // Add click handler for expansion/collapse
@@ -328,7 +429,10 @@ class PCBSystemViewer {
 
     renderConnections(container) {
         const visibleModules = this.getVisibleModules();
+        console.log('Rendering connections for visible modules:', visibleModules.map(m => m.name));
+        
         const connectionPairs = this.calculateConnectionPairs(visibleModules);
+        console.log('Connection pairs calculated:', connectionPairs);
         
         connectionPairs.forEach(pair => {
             this.renderConnectionArrow(pair.from, pair.to, pair.connections, container);
@@ -383,25 +487,40 @@ class PCBSystemViewer {
     }
 
     findTargetModule(targetPath, visibleModules) {
-        // Convert relative path to absolute path and find the most specific visible module
+        console.log('Looking for target:', targetPath);
         
-        // For now, let's assume targetPath is relative from root
-        // Find exact match first
-        let targetModule = this.allModules.get(targetPath);
-        if (targetModule && visibleModules.includes(targetModule)) {
-            return targetModule;
-        }
-        
-        // If exact target not visible, find the closest visible parent
-        const pathParts = targetPath.split('/');
-        for (let i = pathParts.length - 1; i >= 0; i--) {
-            const parentPath = pathParts.slice(0, i).join('/');
-            const parentModule = this.allModules.get(parentPath);
-            if (parentModule && visibleModules.includes(parentModule)) {
-                return parentModule;
+        // Handle relative paths
+        if (targetPath.startsWith('../') || targetPath.startsWith('./')) {
+            // For now, let's try to find by the final name
+            const targetName = targetPath.split('/').pop();
+            console.log('Target name extracted:', targetName);
+            
+            // Find module by name
+            for (let module of visibleModules) {
+                if (module.name === targetName) {
+                    console.log('Found target module by name:', module);
+                    return module;
+                }
+            }
+        } else {
+            // Absolute path - try direct lookup
+            let targetModule = this.allModules.get(targetPath);
+            if (targetModule && visibleModules.includes(targetModule)) {
+                console.log('Found target module by absolute path:', targetModule);
+                return targetModule;
+            }
+            
+            // If not found, try by final component name
+            const targetName = targetPath.split('/').pop();
+            for (let module of visibleModules) {
+                if (module.name === targetName) {
+                    console.log('Found target module by final name:', module);
+                    return module;
+                }
             }
         }
         
+        console.log('Target module not found or not visible');
         return null;
     }
 

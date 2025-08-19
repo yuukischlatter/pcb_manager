@@ -1,0 +1,11 @@
+﻿{
+  "connections": [
+    {
+      "target": "../touch-controller",
+      "type": "capacitive_touch",
+      "interface": "Touch Sensor Array",
+      "signals": ["Touch_1", "Touch_2", "Touch_3", "Touch_4"],
+      "description": "Touch sensor connector array"
+    }
+  ]
+}

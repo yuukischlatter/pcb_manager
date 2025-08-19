@@ -1,0 +1,25 @@
+﻿{
+  "connections": [
+    {
+      "target": "../force-torque-sensors",
+      "type": "analog_signal",
+      "interface": "Analog ADC",
+      "signals": ["Force_X", "Force_Y", "Force_Z", "Torque_X", "Torque_Y", "Torque_Z"],
+      "description": "Processed force and torque sensor readings"
+    },
+    {
+      "target": "../signal-conditioning",
+      "type": "analog_signal",
+      "interface": "Analog Interface",
+      "signals": ["Conditioned_Force", "Conditioned_Torque"],
+      "description": "Signal conditioned analog inputs"
+    },
+    {
+      "target": "../../pcb2-low-power-board/communication-hub",
+      "type": "can_communication",
+      "interface": "CAN Bus",
+      "signals": ["CAN_H", "CAN_L"],
+      "description": "CAN communication with communication hub"
+    }
+  ]
+}
