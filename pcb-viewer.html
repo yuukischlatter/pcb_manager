@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot ARM PCB System Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2d2d2d;
+            padding: 15px 20px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: #ccc;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .breadcrumb-item:hover {
+            background: #444;
+        }
+
+        .breadcrumb-item.active {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        .file-input {
+            padding: 8px 15px;
+            background: #444;
+            border: 1px solid #666;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .main-container {
+            height: calc(100vh - 80px);
+            display: flex;
+        }
+
+        .diagram-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #2d2d2d;
+            border-left: 2px solid #444;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .module-block {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: absolute;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+            z-index: 10;
+        }
+
+        .module-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(79, 195, 247, 0.5);
+        }
+
+        .module-block.pcb {
+            background: linear-gradient(135deg, #ff7043, #ff5722);
+            box-shadow: 0 4px 15px rgba(255, 112, 67, 0.3);
+        }
+
+        .module-block.pcb:hover {
+            box-shadow: 0 8px 25px rgba(255, 112, 67, 0.5);
+        }
+
+        .module-block.component {
+            background: linear-gradient(135deg, #66bb6a, #4caf50);
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+        }
+
+        .module-block.component:hover {
+            box-shadow: 0 8px 25px rgba(102, 187, 106, 0.5);
+        }
+
+        .module-block.parent {
+            background: none !important;
+            border: 3px solid #4fc3f7;
+            box-shadow: none;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .module-block.parent.pcb {
+            border-color: #ff7043;
+        }
+
+        .module-block.parent.component {
+            border-color: #66bb6a;
+        }
+
+        .module-block.expanded {
+            transform: scale(1);
+            z-index: 5;
+        }
+
+        .module-block.child {
+            z-index: 15;
+        }
+
+        .module-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .module-type {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .connection-line {
+            position: absolute;
+            background: #4fc3f7;
+            height: 2px;
+            transform-origin: left center;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .connection-line:hover {
+            height: 4px;
+            background: #29b6f6;
+        }
+
+        .connection-arrow {
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid #4fc3f7;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        .details-panel h3 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+
+        .connection-item {
+            background: #333;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid #4fc3f7;
+        }
+
+        .connection-target {
+            font-weight: bold;
+            color: #4fc3f7;
+            margin-bottom: 5px;
+        }
+
+        .connection-details {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .status-planned {
+            background: #ff9800;
+            color: #000;
+        }
+
+        .status-in-progress {
+            background: #2196f3;
+        }
+
+        .status-completed {
+            background: #4caf50;
+        }
+
+        .instructions {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error-message {
+            color: #f44336;
+            background: #2d1b1b;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="breadcrumb" id="breadcrumb">
+            <span class="breadcrumb-item active" data-path="">System Root</span>
+        </div>
+        <input type="file" webkitdirectory directory multiple class="file-input" id="folderInput" 
+               title="Select the robot-arm-segment-pcb-system folder">
+    </div>
+
+    <div class="main-container">
+        <div class="diagram-container" id="diagramContainer">
+            <div class="instructions">
+                <h2>Robot ARM PCB System Viewer</h2>
+                <p>Select your <strong>robot-arm-segment-pcb-system</strong> folder using the button above to visualize your system architecture.</p>
+                <br>
+                <p>📁 Click modules to drill down<br>
+                🔗 Hover over connections for details<br>
+                📍 Use breadcrumbs to navigate back</p>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="details-panel" id="detailsPanel">
+                <h3>Module Details</h3>
+                <p>Select a module to view its connections and details.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PCBSystemViewer {
+            constructor() {
+                this.fileSystem = new Map();
+                this.currentPath = '';
+                this.currentModules = [];
+                this.selectedModule = null;
+                
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                document.getElementById('folderInput').addEventListener('change', (e) => {
+                    this.loadFileSystem(e.target.files);
+                });
+            }
+
+            async loadFileSystem(files) {
+                this.fileSystem.clear();
+                
+                try {
+                    // Process all files
+                    for (let file of files) {
+                        const relativePath = file.webkitRelativePath;
+                        this.fileSystem.set(relativePath, file);
+                    }
+
+                    // Find and parse all pointer.json files
+                    await this.parsePointerFiles();
+                    
+                    // Start at root
+                    this.navigateToPath('');
+                    
+                } catch (error) {
+                    this.showError('Error loading file system: ' + error.message);
+                }
+            }
+
+            async parsePointerFiles() {
+                const pointerFiles = Array.from(this.fileSystem.keys())
+                    .filter(path => path.endsWith('pointer.json'));
+
+                for (let pointerPath of pointerFiles) {
+                    try {
+                        const file = this.fileSystem.get(pointerPath);
+                        const content = await file.text();
+                        const pointerData = JSON.parse(content);
+                        
+                        // Store parsed data with the directory path
+                        const dirPath = pointerPath.replace('/pointer.json', '');
+                        this.fileSystem.set(dirPath + '_POINTER', pointerData);
+                        
+                    } catch (error) {
+                        console.warn(`Failed to parse ${pointerPath}:`, error);
+                    }
+                }
+            }
+
+            navigateToPath(path, clickedModule = null) {
+                this.currentPath = path;
+                this.updateBreadcrumb();
+                this.loadCurrentLevel();
+                this.renderDiagram(clickedModule);
+            }
+
+            updateBreadcrumb() {
+                const breadcrumb = document.getElementById('breadcrumb');
+                breadcrumb.innerHTML = '';
+                
+                const parts = this.currentPath ? this.currentPath.split('/') : [];
+                
+                // Root
+                const rootItem = document.createElement('span');
+                rootItem.className = 'breadcrumb-item' + (this.currentPath === '' ? ' active' : '');
+                rootItem.textContent = 'System Root';
+                rootItem.addEventListener('click', () => this.navigateToPath(''));
+                breadcrumb.appendChild(rootItem);
+                
+                // Path parts
+                let currentPath = '';
+                parts.forEach((part, index) => {
+                    if (part) {
+                        currentPath += (currentPath ? '/' : '') + part;
+                        
+                        const separator = document.createElement('span');
+                        separator.textContent = ' > ';
+                        separator.style.color = '#666';
+                        breadcrumb.appendChild(separator);
+                        
+                        const item = document.createElement('span');
+                        item.className = 'breadcrumb-item' + (index === parts.length - 1 ? ' active' : '');
+                        item.textContent = part;
+                        const pathToNavigate = currentPath;
+                        item.addEventListener('click', () => this.navigateToPath(pathToNavigate));
+                        breadcrumb.appendChild(item);
+                    }
+                });
+            }
+
+            loadCurrentLevel() {
+                this.currentModules = [];
+                
+                // Find all directories at current level
+                const searchPath = this.currentPath + (this.currentPath ? '/' : '');
+                const directories = new Set();
+                
+                for (let path of this.fileSystem.keys()) {
+                    if (path.startsWith(searchPath) && !path.endsWith('_POINTER')) {
+                        const relativePath = path.substring(searchPath.length);
+                        const firstDir = relativePath.split('/')[0];
+                        
+                        if (firstDir && !firstDir.includes('.')) {
+                            directories.add(firstDir);
+                        }
+                    }
+                }
+
+                // Create module objects
+                directories.forEach(dirName => {
+                    const fullPath = searchPath + dirName;
+                    const pointerData = this.fileSystem.get(fullPath + '_POINTER');
+                    
+                    this.currentModules.push({
+                        name: dirName,
+                        path: fullPath,
+                        pointerData: pointerData || null,
+                        type: this.getModuleType(dirName, pointerData)
+                    });
+                });
+            }
+
+            getModuleType(name, pointerData) {
+                if (pointerData && pointerData.module_info) {
+                    return pointerData.module_info.type.toLowerCase();
+                }
+                
+                if (name.includes('pcb')) return 'pcb';
+                return 'component';
+            }
+
+            renderDiagram(expandedModule = null) {
+                const container = document.getElementById('diagramContainer');
+                container.innerHTML = '';
+
+                if (this.currentModules.length === 0) {
+                    container.innerHTML = '<div class="instructions"><h3>No modules found at this level</h3></div>';
+                    return;
+                }
+
+                // Check if we have a parent module to show
+                const parentModule = this.getParentModule();
+                
+                if (parentModule && expandedModule) {
+                    // Render parent as outline
+                    this.renderParentModule(parentModule, container);
+                    // Render children inside parent
+                    this.renderChildrenInParent(parentModule, container);
+                } else {
+                    // Normal grid layout
+                    const positions = this.calculatePositions(this.currentModules.length);
+                    this.currentModules.forEach((module, index) => {
+                        this.renderModule(module, positions[index], container);
+                    });
+                }
+
+                // Render connections (disabled for now until we fix them)
+                // this.renderConnections(container);
+            }
+
+            getParentModule() {
+                if (!this.currentPath) return null;
+                
+                const pathParts = this.currentPath.split('/');
+                const parentPath = pathParts.slice(0, -1).join('/');
+                const parentName = pathParts[pathParts.length - 1];
+                
+                const pointerData = this.fileSystem.get(this.currentPath + '_POINTER');
+                
+                return {
+                    name: parentName,
+                    path: this.currentPath,
+                    pointerData: pointerData || null,
+                    type: this.getModuleType(parentName, pointerData)
+                };
+            }
+
+            renderParentModule(parentModule, container) {
+                const containerRect = container.getBoundingClientRect();
+                
+                const parentEl = document.createElement('div');
+                parentEl.className = `module-block parent ${parentModule.type} expanded`;
+                
+                // Make parent take most of the container
+                const padding = 40;
+                parentEl.style.left = padding + 'px';
+                parentEl.style.top = padding + 'px';
+                parentEl.style.width = (containerRect.width - padding * 2 - 320) + 'px'; // Account for sidebar
+                parentEl.style.height = (containerRect.height - padding * 2) + 'px';
+                parentEl.style.minWidth = 'auto';
+                
+                parentEl.innerHTML = `
+                    <div class="module-title" style="position: absolute; top: 10px; left: 15px; font-size: 16px;">
+                        ${parentModule.name}
+                    </div>
+                    <div class="module-type" style="position: absolute; top: 35px; left: 15px; font-size: 12px;">
+                        ${parentModule.type.toUpperCase()}
+                    </div>
+                `;
+
+                // Make parent clickable to go back
+                parentEl.style.cursor = 'pointer';
+                parentEl.addEventListener('click', (e) => {
+                    if (e.target === parentEl) { // Only if clicking the parent background
+                        const pathParts = this.currentPath.split('/');
+                        const parentPath = pathParts.slice(0, -1).join('/');
+                        this.navigateToPath(parentPath);
+                    }
+                });
+
+                container.appendChild(parentEl);
+            }
+
+            renderChildrenInParent(parentModule, container) {
+                const parentEl = container.querySelector('.module-block.parent');
+                const parentRect = {
+                    left: 40,
+                    top: 40,
+                    width: parseInt(parentEl.style.width),
+                    height: parseInt(parentEl.style.height)
+                };
+
+                // Calculate positions for children inside parent
+                const childPositions = this.calculateChildPositions(this.currentModules.length, parentRect);
+                
+                this.currentModules.forEach((module, index) => {
+                    this.renderChildModule(module, childPositions[index], container);
+                });
+            }
+
+            calculateChildPositions(count, parentRect) {
+                const positions = [];
+                const margin = 60; // Space from parent edges
+                const availableWidth = parentRect.width - margin * 2;
+                const availableHeight = parentRect.height - margin * 2 - 60; // Extra space for parent title
+                
+                const cols = Math.ceil(Math.sqrt(count));
+                const rows = Math.ceil(count / cols);
+                
+                const spacing = {
+                    x: availableWidth / cols,
+                    y: availableHeight / rows
+                };
+
+                for (let i = 0; i < count; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    
+                    positions.push({
+                        x: parentRect.left + margin + col * spacing.x + spacing.x / 2 - 75,
+                        y: parentRect.top + margin + 60 + row * spacing.y + spacing.y / 2 - 40
+                    });
+                }
+
+                return positions;
+            }
+
+            renderChildModule(module, position, container) {
+                const moduleEl = document.createElement('div');
+                moduleEl.className = `module-block child ${module.type}`;
+                moduleEl.style.left = position.x + 'px';
+                moduleEl.style.top = position.y + 'px';
+                
+                moduleEl.innerHTML = `
+                    <div class="module-title">${module.name}</div>
+                    <div class="module-type">${module.type.toUpperCase()}</div>
+                `;
+
+                moduleEl.addEventListener('click', () => {
+                    this.selectModule(module);
+                    if (this.hasSubmodules(module)) {
+                        this.navigateToPath(module.path, module);
+                    }
+                });
+
+                moduleEl.addEventListener('mouseenter', () => {
+                    this.selectModule(module);
+                });
+
+                container.appendChild(moduleEl);
+            }
+
+            calculatePositions(count) {
+                const containerRect = document.getElementById('diagramContainer').getBoundingClientRect();
+                const positions = [];
+                
+                const cols = Math.ceil(Math.sqrt(count));
+                const rows = Math.ceil(count / cols);
+                
+                const spacing = {
+                    x: Math.min(300, (containerRect.width - 100) / cols),
+                    y: Math.min(200, (containerRect.height - 100) / rows)
+                };
+
+                for (let i = 0; i < count; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    
+                    positions.push({
+                        x: 50 + col * spacing.x + spacing.x / 2 - 75,
+                        y: 50 + row * spacing.y + spacing.y / 2 - 40
+                    });
+                }
+
+                return positions;
+            }
+
+            renderModule(module, position, container) {
+                const moduleEl = document.createElement('div');
+                moduleEl.className = `module-block ${module.type}`;
+                moduleEl.style.left = position.x + 'px';
+                moduleEl.style.top = position.y + 'px';
+                
+                moduleEl.innerHTML = `
+                    <div class="module-title">${module.name}</div>
+                    <div class="module-type">${module.type.toUpperCase()}</div>
+                `;
+
+                moduleEl.addEventListener('click', () => {
+                    this.selectModule(module);
+                    if (this.hasSubmodules(module)) {
+                        this.navigateToPath(module.path, module);
+                    }
+                });
+
+                moduleEl.addEventListener('mouseenter', () => {
+                    this.selectModule(module);
+                });
+
+                container.appendChild(moduleEl);
+            }
+
+            hasSubmodules(module) {
+                const searchPath = module.path + '/';
+                for (let path of this.fileSystem.keys()) {
+                    if (path.startsWith(searchPath) && !path.endsWith('_POINTER')) {
+                        const relativePath = path.substring(searchPath.length);
+                        if (relativePath.includes('/') || (!relativePath.includes('.') && relativePath.length > 0)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            renderConnections(container) {
+                // Simple connection rendering - connect modules that reference each other
+                this.currentModules.forEach(module => {
+                    if (module.pointerData && module.pointerData.connects_to) {
+                        module.pointerData.connects_to.forEach(connection => {
+                            this.renderConnection(module, connection, container);
+                        });
+                    }
+                });
+            }
+
+            renderConnection(fromModule, connection, container) {
+                const fromEl = container.querySelector(`[style*="left: ${this.getModulePosition(fromModule).x}px"]`);
+                const toModuleName = connection.target.split('/').pop();
+                const toModule = this.currentModules.find(m => m.name === toModuleName);
+                
+                if (!fromEl || !toModule) return;
+
+                const toEl = container.querySelector(`[style*="left: ${this.getModulePosition(toModule).x}px"]`);
+                if (!toEl) return;
+
+                const fromRect = fromEl.getBoundingClientRect();
+                const toRect = toEl.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+
+                const line = document.createElement('div');
+                line.className = 'connection-line';
+                
+                const startX = fromRect.left - containerRect.left + fromRect.width / 2;
+                const startY = fromRect.top - containerRect.top + fromRect.height / 2;
+                const endX = toRect.left - containerRect.left + toRect.width / 2;
+                const endY = toRect.top - containerRect.top + toRect.height / 2;
+
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+
+                line.style.left = startX + 'px';
+                line.style.top = startY + 'px';
+                line.style.width = length + 'px';
+                line.style.transform = `rotate(${angle}deg)`;
+
+                const arrow = document.createElement('div');
+                arrow.className = 'connection-arrow';
+                line.appendChild(arrow);
+
+                line.title = `${connection.interface}: ${connection.description}`;
+                
+                container.appendChild(line);
+            }
+
+            getModulePosition(module) {
+                const index = this.currentModules.indexOf(module);
+                return this.calculatePositions(this.currentModules.length)[index];
+            }
+
+            selectModule(module) {
+                this.selectedModule = module;
+                this.updateDetailsPanel();
+            }
+
+            updateDetailsPanel() {
+                const panel = document.getElementById('detailsPanel');
+                
+                if (!this.selectedModule) {
+                    panel.innerHTML = '<h3>Module Details</h3><p>Select a module to view its connections and details.</p>';
+                    return;
+                }
+
+                const module = this.selectedModule;
+                let html = `<h3>${module.name}</h3>`;
+                
+                if (module.pointerData) {
+                    html += `<p><strong>Type:</strong> ${module.type}</p>`;
+                    html += `<p><strong>Path:</strong> ${module.path}</p>`;
+                    
+                    if (module.pointerData.connects_to && module.pointerData.connects_to.length > 0) {
+                        html += '<h4>Connections:</h4>';
+                        
+                        module.pointerData.connects_to.forEach(conn => {
+                            html += `
+                                <div class="connection-item">
+                                    <div class="connection-target">${conn.target}</div>
+                                    <div class="connection-details">
+                                        <strong>Interface:</strong> ${conn.interface}<br>
+                                        <strong>Signals:</strong> ${Array.isArray(conn.signals) ? conn.signals.join(', ') : conn.signals}<br>
+                                        <strong>Description:</strong> ${conn.description}<br>
+                                        <span class="status-badge status-${conn.status}">${conn.status}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                } else {
+                    html += '<p>No pointer data available for this module.</p>';
+                }
+
+                if (this.hasSubmodules(module)) {
+                    html += '<p><em>Click to explore submodules</em></p>';
+                }
+
+                panel.innerHTML = html;
+            }
+
+            showError(message) {
+                const container = document.getElementById('diagramContainer');
+                container.innerHTML = `<div class="error-message">${message}</div>`;
+            }
+        }
+
+        // Initialize the viewer
+        const viewer = new PCBSystemViewer();
+    </script>
+</body>
+</html>

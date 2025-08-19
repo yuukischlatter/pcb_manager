@@ -1,0 +1,36 @@
+﻿{
+    "module_info":  {
+                        "path":  "pcb3-force-torque-assembly/ft-sensing/ft-mcu-controller",
+                        "name":  "ft-mcu-controller",
+                        "type":  "PCB"
+                    },
+    "connects_to":  [
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../force-torque-sensors",
+                            "target":  "../force-torque-sensors"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../signal-conditioning",
+                            "target":  "../signal-conditioning"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../../pcb2-low-power-board/communication-hub",
+                            "target":  "../../pcb2-low-power-board/communication-hub"
+                        }
+                    ]
+}

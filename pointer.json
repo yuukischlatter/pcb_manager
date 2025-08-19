@@ -1,0 +1,40 @@
+﻿{
+    "module_info":  {
+                        "path":  "root",
+                        "description":  "Main robot arm control system with 3 PCB modules",
+                        "name":  "Robot Arm Segment PCB System",
+                        "type":  "System"
+                    },
+    "connects_to":  [
+                        {
+                            "status":  "planned",
+                            "interface":  "System Bus",
+                            "signals":  [
+                                            "Power",
+                                            "Control"
+                                        ],
+                            "description":  "High power motor control board",
+                            "target":  "pcb1-high-power-board"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "System Bus",
+                            "signals":  [
+                                            "Communication",
+                                            "Sensors"
+                                        ],
+                            "description":  "Low power communication and sensor hub",
+                            "target":  "pcb2-low-power-board"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "Sensor Bus",
+                            "signals":  [
+                                            "Force Data",
+                                            "Torque Data"
+                                        ],
+                            "description":  "Force and torque sensing assembly",
+                            "target":  "pcb3-force-torque-assembly"
+                        }
+                    ]
+}

@@ -1,0 +1,36 @@
+﻿{
+    "module_info":  {
+                        "path":  "pcb2-low-power-board/communication-hub/inter-mcu-connection",
+                        "name":  "inter-mcu-connection",
+                        "type":  "PCB"
+                    },
+    "connects_to":  [
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../main-bus",
+                            "target":  "../main-bus"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../../sensor-processing",
+                            "target":  "../../sensor-processing"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../../pcb1-high-power-board",
+                            "target":  "../../pcb1-high-power-board"
+                        }
+                    ]
+}

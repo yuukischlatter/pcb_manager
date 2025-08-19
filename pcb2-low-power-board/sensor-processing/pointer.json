@@ -1,0 +1,27 @@
+﻿{
+    "module_info":  {
+                        "path":  "pcb2-low-power-board/sensor-processing",
+                        "name":  "sensor-processing",
+                        "type":  "PCB"
+                    },
+    "connects_to":  [
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../communication-hub",
+                            "target":  "../communication-hub"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../../pcb1-high-power-board/motor-control",
+                            "target":  "../../pcb1-high-power-board/motor-control"
+                        }
+                    ]
+}

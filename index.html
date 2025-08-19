@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot ARM PCB System Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="breadcrumb" id="breadcrumb">
+            <span class="breadcrumb-item active" data-path="">System Root</span>
+        </div>
+        <input type="file" webkitdirectory directory multiple class="file-input" id="folderInput" 
+               title="Select the robot-arm-segment-pcb-system folder">
+    </div>
+
+    <div class="main-container">
+        <div class="diagram-container" id="diagramContainer">
+            <div class="instructions">
+                <h2>Robot ARM PCB System Viewer</h2>
+                <p>Select your <strong>robot-arm-segment-pcb-system</strong> folder using the button above to visualize your system architecture.</p>
+                <br>
+                <p>📁 Click modules to drill down<br>
+                🔗 Hover over connections for details<br>
+                📍 Use breadcrumbs to navigate back</p>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="details-panel" id="detailsPanel">
+                <h3>Module Details</h3>
+                <p>Select a module to view its connections and details.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

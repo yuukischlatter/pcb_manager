@@ -1,0 +1,36 @@
+﻿{
+    "module_info":  {
+                        "path":  "pcb2-low-power-board/communication-hub/main-bus",
+                        "name":  "main-bus",
+                        "type":  "PCB"
+                    },
+    "connects_to":  [
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../inter-mcu-connection",
+                            "target":  "../inter-mcu-connection"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../../touch-interface",
+                            "target":  "../../touch-interface"
+                        },
+                        {
+                            "status":  "planned",
+                            "interface":  "TBD",
+                            "signals":  [
+                                            "TBD"
+                                        ],
+                            "description":  "Connection to ../../pcb3-force-torque-assembly",
+                            "target":  "../../pcb3-force-torque-assembly"
+                        }
+                    ]
+}
